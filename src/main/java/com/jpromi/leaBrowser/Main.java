@@ -61,6 +61,7 @@ public class Main {
 
                 if (request.contains("\"action\":\"shutdown\"")) {
                     callback.success("OK");
+                    cefApp.dispose();
                     System.exit(0);
                     return true;
                 }
@@ -93,7 +94,7 @@ public class Main {
 
                 if (isAllowed(url)) {
                     cefBrowser.executeJavaScript("""
-                        window.CUSTOM = {
+                        window.LEACOM = {
                             shutdown: function() {
                                 window.cefQuery({
                                     request: JSON.stringify({ action: "shutdown" })
