@@ -2,6 +2,7 @@ package com.jpromi.leaBrowser.browser;
 
 import com.jpromi.leaBrowser.commands.ApplicationCommand;
 import com.jpromi.leaBrowser.commands.SystemCommand;
+import com.jpromi.leaBrowser.registry.BrowserCommandAutoLoader;
 import com.jpromi.leaBrowser.registry.BrowserCommandRegistry;
 import me.friwi.jcefmaven.CefAppBuilder;
 import me.friwi.jcefmaven.MavenCefAppHandlerAdapter;
@@ -28,8 +29,7 @@ public class BrowserApplication {
         BrowserApplicationContext context = new BrowserApplicationContext(cefApp);
 
         BrowserCommandRegistry commandRegistry = new BrowserCommandRegistry();
-        commandRegistry.register(new ApplicationCommand(context));
-        commandRegistry.register(new SystemCommand());
+        BrowserCommandAutoLoader.registerAll(commandRegistry, context);
 
         client.addMessageRouter(
                 new BrowserMessageHandler(commandRegistry).createRouter()
