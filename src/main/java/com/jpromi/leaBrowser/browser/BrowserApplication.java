@@ -19,6 +19,8 @@ public class BrowserApplication {
         builder.addJcefArgs("--kiosk-printing");
         builder.addJcefArgs("--disable-print-preview");
         builder.addJcefArgs("--autoplay-policy=no-user-gesture-required");
+        builder.addJcefArgs("--enable-gpu");
+        builder.addJcefArgs("--enable-smooth-scrolling");
 
         builder.getCefSettings().windowless_rendering_enabled = false;
         builder.setAppHandler(new MavenCefAppHandlerAdapter() {});
