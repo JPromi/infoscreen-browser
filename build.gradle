@@ -20,7 +20,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("com.jpromi.leaBrowser.Main")
+    mainClass.set("com.jpromi.infoscreenBrowser.Main")
 }
 
 test {

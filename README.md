@@ -24,5 +24,5 @@ public class TestCommand {
 2. Rufe den neuen Befehl auf deiner Website auf
 Beispiel:
 ```JavaScript
-window.LEACOM.tset.hello();
+window.INFOSCREENCOM.tset.hello();
 ```

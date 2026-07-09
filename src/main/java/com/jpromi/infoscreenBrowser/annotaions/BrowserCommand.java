@@ -1,4 +1,4 @@
-package com.jpromi.leaBrowser.annotaions;
+package com.jpromi.infoscreenBrowser.annotaions;
 
 import java.lang.annotation.*;
 

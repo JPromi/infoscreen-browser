@@ -1,6 +1,6 @@
-package com.jpromi.leaBrowser.browser;
+package com.jpromi.infoscreenBrowser.browser;
 
-import com.jpromi.leaBrowser.registry.BrowserCommandRegistry;
+import com.jpromi.infoscreenBrowser.registry.BrowserCommandRegistry;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.handler.CefLoadHandlerAdapter;

@@ -1,7 +1,7 @@
-package com.jpromi.leaBrowser.registry;
+package com.jpromi.infoscreenBrowser.registry;
 
-import com.jpromi.leaBrowser.annotaions.BrowserClass;
-import com.jpromi.leaBrowser.annotaions.BrowserCommand;
+import com.jpromi.infoscreenBrowser.annotaions.BrowserClass;
+import com.jpromi.infoscreenBrowser.annotaions.BrowserCommand;
 
 import java.lang.reflect.Method;
 import java.util.*;

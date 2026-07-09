@@ -1,9 +1,9 @@
-package com.jpromi.leaBrowser.browser;
+package com.jpromi.infoscreenBrowser.browser;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.jpromi.leaBrowser.registry.BrowserCommandRegistry;
+import com.jpromi.infoscreenBrowser.registry.BrowserCommandRegistry;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.browser.CefMessageRouter;

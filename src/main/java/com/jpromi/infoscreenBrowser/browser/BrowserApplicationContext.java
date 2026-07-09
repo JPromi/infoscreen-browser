@@ -1,4 +1,4 @@
-package com.jpromi.leaBrowser.browser;
+package com.jpromi.infoscreenBrowser.browser;
 
 import org.cef.CefApp;
 import org.cef.browser.CefBrowser;

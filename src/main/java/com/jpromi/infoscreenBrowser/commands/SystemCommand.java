@@ -1,7 +1,7 @@
-package com.jpromi.leaBrowser.commands;
+package com.jpromi.infoscreenBrowser.commands;
 
-import com.jpromi.leaBrowser.annotaions.BrowserClass;
-import com.jpromi.leaBrowser.annotaions.BrowserCommand;
+import com.jpromi.infoscreenBrowser.annotaions.BrowserClass;
+import com.jpromi.infoscreenBrowser.annotaions.BrowserCommand;
 
 @BrowserClass("system")
 public class SystemCommand {

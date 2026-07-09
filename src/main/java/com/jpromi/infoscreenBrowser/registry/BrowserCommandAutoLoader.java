@@ -1,7 +1,7 @@
-package com.jpromi.leaBrowser.registry;
+package com.jpromi.infoscreenBrowser.registry;
 
-import com.jpromi.leaBrowser.annotaions.BrowserClass;
-import com.jpromi.leaBrowser.browser.BrowserApplicationContext;
+import com.jpromi.infoscreenBrowser.annotaions.BrowserClass;
+import com.jpromi.infoscreenBrowser.browser.BrowserApplicationContext;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 
@@ -16,7 +16,7 @@ public class BrowserCommandAutoLoader {
         try (ScanResult scanResult = new ClassGraph()
                 .enableClassInfo()
                 .enableAnnotationInfo()
-                .acceptPackages("com.jpromi.leaBrowser.commands")
+                .acceptPackages("com.jpromi.infoscreenBrowser.commands")
                 .scan()) {
 
             scanResult

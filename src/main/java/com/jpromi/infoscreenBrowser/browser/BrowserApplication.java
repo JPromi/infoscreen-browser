@@ -1,9 +1,7 @@
-package com.jpromi.leaBrowser.browser;
+package com.jpromi.infoscreenBrowser.browser;
 
-import com.jpromi.leaBrowser.commands.ApplicationCommand;
-import com.jpromi.leaBrowser.commands.SystemCommand;
-import com.jpromi.leaBrowser.registry.BrowserCommandAutoLoader;
-import com.jpromi.leaBrowser.registry.BrowserCommandRegistry;
+import com.jpromi.infoscreenBrowser.registry.BrowserCommandAutoLoader;
+import com.jpromi.infoscreenBrowser.registry.BrowserCommandRegistry;
 import me.friwi.jcefmaven.CefAppBuilder;
 import me.friwi.jcefmaven.MavenCefAppHandlerAdapter;
 import org.cef.*;
@@ -47,7 +45,7 @@ public class BrowserApplication {
 
         context.browser = browser;
 
-        JFrame window = new JFrame("LEA Browser");
+        JFrame window = new JFrame("Infoscreen Browser");
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         window.setSize(1280, 720);
         window.setLayout(new BorderLayout());

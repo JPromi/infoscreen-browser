@@ -1,6 +1,6 @@
-package com.jpromi.leaBrowser;
+package com.jpromi.infoscreenBrowser;
 
-import com.jpromi.leaBrowser.browser.BrowserApplication;
+import com.jpromi.infoscreenBrowser.browser.BrowserApplication;
 
 import javax.swing.*;
 
