@@ -1,0 +1,180 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (z.B. 1.2.0)'
+        required: true
+        default: '1.0.0'
+      prerelease:
+        description: 'Als Pre-Release markieren'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: InfoscreenBrowser
+  JAVA_VERSION: '25'
+
+jobs:
+  jar:
+    name: Build JAR
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      pkg_version: ${{ steps.version.outputs.pkg_version }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="${{ inputs.version }}"
+            VERSION="${VERSION#v}"
+          fi
+          # jpackage akzeptiert nur numerische Versionen (z.B. 1.2.0), Suffixe wie -beta werden abgeschnitten
+          PKG_VERSION=$(echo "$VERSION" | sed -E 's/^([0-9]+(\.[0-9]+){0,2}).*/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "pkg_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Build fat jar
+        run: |
+          chmod +x gradlew
+          ./gradlew fatJar -PappVersion=${{ steps.version.outputs.version }} --no-daemon
+          mkdir -p dist
+          cp build/libs/*-all.jar "dist/${APP_NAME}-${{ steps.version.outputs.version }}.jar"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jar
+          path: dist/*.jar
+
+  package:
+    name: Package ${{ matrix.name }}
+    needs: jar
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows-x64
+            type: exe
+          - os: ubuntu-latest
+            name: linux-x64
+            type: deb
+          - os: macos-latest
+            name: macos-arm64
+            type: dmg
+          - os: macos-15-intel
+            name: macos-x64
+            type: dmg
+    env:
+      VERSION: ${{ needs.jar.outputs.version }}
+      PKG_VERSION: ${{ needs.jar.outputs.pkg_version }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: jar
+          path: input
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install WiX (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          dotnet tool install --global wix --version 5.0.2
+          wix extension add -g WixToolset.UI.wixext/5.0.2
+          wix extension add -g WixToolset.Util.wixext/5.0.2
+
+      - name: Run jpackage
+        shell: bash
+        run: |
+          JAR_NAME="${APP_NAME}-${VERSION}.jar"
+          ARGS=(
+            --type "${{ matrix.type }}"
+            --name "$APP_NAME"
+            --app-version "$PKG_VERSION"
+            --input input
+            --main-jar "$JAR_NAME"
+            --dest out
+            --java-options "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
+          )
+          case "${{ runner.os }}" in
+            Windows)
+              ARGS+=(--win-menu --win-shortcut --win-per-user-install --win-dir-chooser)
+              ;;
+            Linux)
+              ARGS+=(--linux-package-name infoscreen-browser --linux-shortcut)
+              ;;
+            macOS)
+              ARGS+=(
+                --java-options "--add-exports=java.desktop/sun.lwawt=ALL-UNNAMED"
+                --java-options "--add-exports=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+              )
+              ;;
+          esac
+          jpackage "${ARGS[@]}"
+
+          mkdir -p dist
+          for f in out/*.${{ matrix.type }}; do
+            mv "$f" "dist/${APP_NAME}-${VERSION}-${{ matrix.name }}.${{ matrix.type }}"
+          done
+
+      - name: Portable Linux bundle
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          jpackage --type app-image \
+            --name "$APP_NAME" \
+            --app-version "$PKG_VERSION" \
+            --input input \
+            --main-jar "${APP_NAME}-${VERSION}.jar" \
+            --dest out-image \
+            --java-options "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
+          tar -czf "dist/${APP_NAME}-${VERSION}-${{ matrix.name }}.tar.gz" -C out-image "$APP_NAME"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.name }}
+          path: dist/*
+
+  release:
+    name: Create GitHub Release
+    needs: [jar, package]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.jar.outputs.version }}
+          name: ${{ env.APP_NAME }} v${{ needs.jar.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          prerelease: ${{ inputs.prerelease || contains(needs.jar.outputs.version, '-') }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: dist/*
