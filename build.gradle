@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.jpromi'
-version = '1.0-SNAPSHOT'
+version = findProperty('appVersion') ?: '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -21,6 +21,22 @@ dependencies {
 
 application {
     mainClass.set("com.jpromi.infoscreenBrowser.Main")
+}
+
+tasks.register('fatJar', Jar) {
+    group = 'build'
+    description = 'Builds a runnable jar including all dependencies.'
+    archiveClassifier = 'all'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
+    from sourceSets.main.output
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'module-info.class'
 }
 
 test {
