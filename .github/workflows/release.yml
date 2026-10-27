@@ -75,7 +75,7 @@ jobs:
         include:
           - os: windows-latest
             name: windows-x64
-            type: exe
+            type: msi
           - os: ubuntu-latest
             name: linux-x64
             type: deb
@@ -153,6 +153,30 @@ jobs:
             --dest out-image \
             --java-options "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
           tar -czf "dist/${APP_NAME}-${VERSION}-${{ matrix.name }}.tar.gz" -C out-image "$APP_NAME"
+
+      - name: Portable Windows bundle
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          jpackage --type app-image `
+            --name "$env:APP_NAME" `
+            --app-version "$env:PKG_VERSION" `
+            --input input `
+            --main-jar "$env:APP_NAME-$env:VERSION.jar" `
+            --dest out-image `
+            --java-options "--add-exports=java.desktop/sun.awt=ALL-UNNAMED"
+
+          # Portabler Ordner (exe + Runtime) als zip
+          Compress-Archive -Path "out-image/$env:APP_NAME" `
+            -DestinationPath "dist/$env:APP_NAME-$env:VERSION-${{ matrix.name }}-portable.zip"
+
+          # Einzelne exe: warp-packer bündelt den Ordner und entpackt ihn beim ersten Start in %LOCALAPPDATA%\warp
+          Invoke-WebRequest -Uri "https://github.com/dgiagio/warp/releases/download/v0.3.0/windows-x64.warp-packer.exe" `
+            -OutFile warp-packer.exe
+          ./warp-packer.exe --arch windows-x64 `
+            --input_dir "out-image/$env:APP_NAME" `
+            --exec "$env:APP_NAME.exe" `
+            --output "dist/$env:APP_NAME-$env:VERSION-${{ matrix.name }}.exe"
 
       - uses: actions/upload-artifact@v4
         with:
